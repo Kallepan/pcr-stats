@@ -100,6 +100,8 @@ def main():
 
     # get the message from the first occurence of each code
     first_occurence = df.drop_duplicates(subset="code", keep="first")
+    # keep only the code and the message
+    first_occurence = first_occurence[["code", "message"]]
 
     # merge the first occurence and the statistics
     statistics = pd.merge(first_occurence, statistics, on="code")
