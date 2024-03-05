@@ -1,0 +1,11 @@
+# Data
+data/*
+data.zip
+
+# Binaries
+bin/*
+
+# IDE
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
