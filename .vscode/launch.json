@@ -10,6 +10,14 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal"
-        }
+        },
+        {
+            "name": "Launch Inge stats",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/inge/main.go",
+            "output": "${workspaceFolder}/inge/bin/main",
+        },
     ]
 }

@@ -3,6 +3,7 @@ import pandas as pd
 import logging
 import re
 from typing import List
+import time
 
 logging.basicConfig(level=logging.INFO)
 
@@ -53,6 +54,7 @@ def create_statistics(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def main():
+    start = time.time()
     files = get_files(FILE_PATH)
 
     # create a df
@@ -106,6 +108,10 @@ def main():
     # merge the first occurence and the statistics
     statistics = pd.merge(first_occurence, statistics, on="code")
     statistics.to_csv(os.path.join(OUTPUT_PATH, "statistics.csv"), index=False)
+    logging.info(f"Statistics saved at {os.path.join(OUTPUT_PATH, 'statistics.csv')}")
+
+    end = time.time()
+    logging.info(f"Processing took {(end - start)*1000} ms")
 
 
 if __name__ == "__main__":

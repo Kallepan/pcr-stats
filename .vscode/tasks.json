@@ -12,6 +12,39 @@
 				"kind": "build",
 				"isDefault": true
 			}
+		},
+		{
+			"label": "Run GoLang",
+			"type": "shell",
+			"command": "go",
+			"args": [
+				"run",
+				"${file}"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		{
+			"label": "Compile Inge-Stats for Windows",
+			"type": "shell",
+			"command": "go",
+			"args": [
+				"build",
+				"-buildvcs=false",
+				"-o",
+				"bin/${env:FILE_NAME}"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}/inge",
+				"env": {
+					"GOOS": "windows",
+					"GOARCH": "amd64",
+					"FILE_NAME": "inge-stats.exe"
+				}
+			},
+			"problemMatcher": []
 		}
 	]
 }
