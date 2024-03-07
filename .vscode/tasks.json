@@ -34,14 +34,14 @@
 				"build",
 				"-buildvcs=false",
 				"-o",
-				"bin/${env:FILE_NAME}"
+				"bin/inge-stats.exe",
+				"src/main.go"
 			],
 			"options": {
 				"cwd": "${workspaceFolder}/inge",
 				"env": {
 					"GOOS": "windows",
 					"GOARCH": "amd64",
-					"FILE_NAME": "inge-stats.exe"
 				}
 			},
 			"problemMatcher": []
