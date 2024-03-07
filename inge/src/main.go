@@ -115,11 +115,11 @@ func main() {
 			slog.Warn(fmt.Sprintf("Skipping file: %s", file.Name()))
 			continue
 		}
+		slog.Info(fmt.Sprintf("Processing file %d/%d: %s", i+1, len(files), file.Name()))
 
 		wg.Add(1)
 		go func(file os.DirEntry) {
 			defer wg.Done()
-			slog.Info(fmt.Sprintf("Processing file %d/%d: %s", i+1, len(files), file.Name()))
 
 			f, err := os.Open(path.Join(filePath, file.Name()))
 			if err != nil {
@@ -134,10 +134,6 @@ func main() {
 				if line == "" || line == " " || line == "\t" || line == "\n" {
 					continue
 				}
-
-				// replace " with ' to avoid csv issues
-				line = strings.ReplaceAll(line, "\"", "'")
-
 				if !lineStartRegex.MatchString(line) {
 					if len(lines) == 0 {
 						slog.Error(fmt.Sprintf("No date found in first line: %s in file %s", line, file.Name()))
@@ -170,10 +166,15 @@ func main() {
 	var dataArr []Data
 	var codeToMessageMap = make(map[string]string)
 	for _, row := range allLines {
-		d := strings.Replace(row, "\t\t", "\t", -1)
+		// replace empty tabs with one tab
+		d := strings.ReplaceAll(row, "\t\t", "\t")
+
+		// replace " with ' for csv
+		d = strings.ReplaceAll(d, "\"", "'")
 
 		// remove [Spur1] to [Spur12] from message
 		d = regexp.MustCompile(`\[(Spur\d{1,2})\]`).ReplaceAllString(d, "")
+		d = regexp.MustCompile(`\[(Track\d{1,2})\]`).ReplaceAllString(d, "")
 
 		s := strings.Split(d, "\t")
 
