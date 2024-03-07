@@ -8,6 +8,7 @@ import (
 	"path"
 	"regexp"
 	"runtime"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -104,7 +105,7 @@ func main() {
 	}
 
 	// set up regex for log line
-	lineStartRegex := regexp.MustCompile(`^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2}.\d{3}`)
+	lineStartRegex := regexp.MustCompile(`^(\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2}.\d{3}|\d{2}.\d{2}.\d{4} \d{2}:\d{2}:\d{2})`)
 	var allLines []string
 	linesCh := make(chan []string, len(files))
 
@@ -134,7 +135,15 @@ func main() {
 					continue
 				}
 
+				// replace " with ' to avoid csv issues
+				line = strings.ReplaceAll(line, "\"", "'")
+
 				if !lineStartRegex.MatchString(line) {
+					if len(lines) == 0 {
+						slog.Error(fmt.Sprintf("No date found in first line: %s in file %s", line, file.Name()))
+						continue
+					}
+
 					lines[len(lines)-1] = lines[len(lines)-1] + " " + strings.Trim(line, " ")
 					continue
 				}
@@ -164,7 +173,7 @@ func main() {
 		d := strings.Replace(row, "\t\t", "\t", -1)
 
 		// remove [Spur1] to [Spur12] from message
-		d = regexp.MustCompile(`\[(Spur\d)\]`).ReplaceAllString(d, "")
+		d = regexp.MustCompile(`\[(Spur\d{1,2})\]`).ReplaceAllString(d, "")
 
 		s := strings.Split(d, "\t")
 
@@ -201,6 +210,11 @@ func main() {
 		exportDataArr = append(exportDataArr, ExportData{code, codeToMessageMap[code], count})
 	}
 
+	// sort by count
+	sort.Slice(exportDataArr, func(i, j int) bool {
+		return exportDataArr[i].count > exportDataArr[j].count
+	})
+
 	// Write to file
 	f, err := os.Create(fmt.Sprintf("export_%s.csv", time.Now().Format("2006-01-02_15-04-05")))
 	if err != nil {
@@ -215,4 +229,8 @@ func main() {
 
 	slog.Info(fmt.Sprintf("Exported %d rows", len(exportDataArr)))
 	slog.Debug(fmt.Sprintf("Time taken: %s", time.Since(start)))
+
+	slog.Info("Press enter to exit")
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
 }
